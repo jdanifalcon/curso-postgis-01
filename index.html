@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curso Introducción a PostGIS — Agosto 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal-deep: #0B5E5B;
+  --teal-dark: #0A4F4D;
+  --teal-mid: #107270;
+  --purple: #B846F1;
+  --purple-dark: #890999;
+  --green-bright: #37D633;
+  --green-lime: #4AE647;
+  --mint: #96DAC5;
+  --mint-light: #B8EAD9;
+  --navy: #110598;
+  --cream: #F5F0E8;
+  --dark-bg: #0D3D3B;
+  --star-yellow: #FFD644;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--dark-bg);
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* ==================== HERO / FLYER ==================== */
+.hero {
+  min-height: 100vh;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(184,70,241,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(55,214,51,0.1) 0%, transparent 50%),
+    var(--teal-deep);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 2rem;
+}
+
+/* Grid pattern overlay */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(150,218,197,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(150,218,197,0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* Decorative stars */
+.star {
+  position: absolute;
+  font-size: 1.5rem;
+  animation: twinkle 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+.star:nth-child(1) { top: 8%; left: 10%; animation-delay: 0s; color: var(--star-yellow); font-size: 2rem; }
+.star:nth-child(2) { top: 15%; right: 12%; animation-delay: 0.8s; color: var(--green-bright); }
+.star:nth-child(3) { bottom: 20%; left: 8%; animation-delay: 1.5s; color: var(--purple); font-size: 1.8rem; }
+.star:nth-child(4) { top: 35%; right: 6%; animation-delay: 0.3s; color: var(--mint); font-size: 1.2rem; }
+.star:nth-child(5) { bottom: 30%; right: 15%; animation-delay: 2s; color: var(--star-yellow); }
+.star:nth-child(6) { top: 60%; left: 5%; animation-delay: 1s; color: var(--green-bright); font-size: 1rem; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.4; transform: scale(1) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(15deg); }
+}
+
+/* Marquee banner */
+.marquee-wrapper {
+  width: 100vw;
+  overflow: hidden;
+  background: var(--purple);
+  padding: 0.5rem 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+}
+.marquee-track span {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 0 2rem;
+  color: #fff;
+}
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.hero-card {
+  position: relative;
+  z-index: 3;
+  background: rgba(11,94,91,0.6);
+  backdrop-filter: blur(20px);
+  border: 2px solid var(--mint);
+  border-radius: 2rem;
+  padding: 3rem 3rem 2.5rem;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 
+    0 0 60px rgba(150,218,197,0.15),
+    0 25px 50px rgba(0,0,0,0.3);
+}
+
+.badge {
+  display: inline-block;
+  background: var(--green-bright);
+  color: #0a2e0a;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.35rem 1rem;
+  border-radius: 2rem;
+  margin-bottom: 1.2rem;
+}
+
+.mascot {
+  width: 160px;
+  height: auto;
+  margin: 0 auto 1rem;
+  display: block;
+  filter: drop-shadow(0 5px 20px rgba(184,70,241,0.3));
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.hero-title {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 2.8rem;
+  line-height: 1.1;
+  margin-bottom: 0.3rem;
+  background: linear-gradient(135deg, #fff 0%, var(--mint-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: var(--mint);
+  margin-bottom: 1.5rem;
+}
+
+.dates-box {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(150,218,197,0.3);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.dates-box .date-main {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--star-yellow);
+}
+.dates-box .date-details {
+  font-size: 0.9rem;
+  color: var(--mint);
+  margin-top: 0.3rem;
+}
+
+.includes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1.8rem;
+}
+.includes-list .tag {
+  background: rgba(150,218,197,0.15);
+  border: 1px solid rgba(150,218,197,0.3);
+  border-radius: 2rem;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.75rem;
+  color: var(--mint-light);
+  font-weight: 500;
+}
+.includes-list .tag::before {
+  content: '✓ ';
+  color: var(--green-bright);
+  font-weight: 700;
+}
+
+.cta-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 2rem;
+  border-radius: 3rem;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary {
+  background: var(--purple);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(184,70,241,0.4);
+}
+.btn-primary:hover {
+  background: #c95ff5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(184,70,241,0.5);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--mint-light);
+  border: 2px solid var(--mint);
+}
+.btn-secondary:hover {
+  background: rgba(150,218,197,0.15);
+  transform: translateY(-2px);
+}
+
+.hero-footer {
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  color: rgba(150,218,197,0.6);
+}
+
+/* ==================== TEMARIO SECTION ==================== */
+#temario {
+  padding: 4rem 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.section-header h2 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+.section-header p {
+  color: var(--mint);
+  font-size: 1rem;
+}
+
+/* Session cards */
+.session {
+  background: rgba(16,114,112,0.25);
+  border: 1px solid rgba(150,218,197,0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.session:hover {
+  border-color: rgba(150,218,197,0.5);
+}
+
+.session::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+}
+.session:nth-child(1)::before { background: var(--green-bright); }
+.session:nth-child(2)::before { background: var(--purple); }
+.session:nth-child(3)::before { background: var(--star-yellow); }
+.session:nth-child(4)::before { background: var(--mint); }
+.session:nth-child(5)::before { background: var(--green-bright); }
+
+.session-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.day-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  border-radius: 2rem;
+  flex-shrink: 0;
+}
+.session:nth-child(1) .day-badge { background: var(--green-bright); color: #0a2e0a; }
+.session:nth-child(2) .day-badge { background: var(--purple); color: #fff; }
+.session:nth-child(3) .day-badge { background: var(--star-yellow); color: #3a2e00; }
+.session:nth-child(4) .day-badge { background: var(--mint); color: #0a3a2e; }
+.session:nth-child(5) .day-badge { background: var(--green-bright); color: #0a2e0a; }
+
+.session-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.block {
+  margin-bottom: 1rem;
+}
+.block-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mint);
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+.block ul {
+  list-style: none;
+  padding: 0;
+}
+.block ul li {
+  position: relative;
+  padding-left: 1.2rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.5;
+}
+.block ul li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--green-bright);
+  font-weight: 700;
+}
+
+code {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  background: rgba(0,0,0,0.3);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  color: var(--green-lime);
+}
+
+.deliverable {
+  background: rgba(184,70,241,0.1);
+  border: 1px solid rgba(184,70,241,0.25);
+  border-radius: 0.8rem;
+  padding: 0.6rem 1rem;
+  margin-top: 0.8rem;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+}
+.deliverable strong {
+  color: var(--purple);
+}
+
+/* ==================== WHAT'S INCLUDED ==================== */
+.included-section {
+  background: rgba(184,70,241,0.08);
+  border: 1px solid rgba(184,70,241,0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  margin-top: 2rem;
+  text-align: center;
+}
+.included-section h3 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1.2rem;
+}
+.included-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.included-item {
+  background: rgba(0,0,0,0.2);
+  border-radius: 1rem;
+  padding: 1.2rem 1rem;
+}
+.included-item .icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+.included-item .label {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--mint-light);
+}
+
+.final-cta {
+  margin-top: 2rem;
+  padding-bottom: 1rem;
+  text-align: center;
+}
+
+/* ==================== REQUISITOS ==================== */
+.requisitos {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(150,218,197,0.15);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  margin-top: 1.5rem;
+}
+.requisitos h3 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1rem;
+}
+.req-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+.req-col h4 {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mint);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+.req-col ul {
+  list-style: none;
+  padding: 0;
+}
+.req-col ul li {
+  padding-left: 1.2rem;
+  position: relative;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 0.3rem;
+  line-height: 1.5;
+}
+.req-col ul li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--star-yellow);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+/* ==================== FOOTER ==================== */
+.page-footer {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  border-top: 1px solid rgba(150,218,197,0.1);
+  max-width: 900px;
+  margin: 0 auto;
+}
+.page-footer .instructor {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--mint);
+  margin-bottom: 0.3rem;
+}
+.page-footer .credentials {
+  font-size: 0.8rem;
+  color: rgba(150,218,197,0.5);
+  line-height: 1.6;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 640px) {
+  .hero-card { padding: 2rem 1.5rem; }
+  .hero-title { font-size: 2rem; }
+  .hero-subtitle { font-size: 1.05rem; }
+  .dates-box .date-main { font-size: 1.1rem; }
+  .cta-group { flex-direction: column; align-items: center; }
+  .btn { width: 100%; justify-content: center; }
+  .session { padding: 1.5rem; }
+  .session-title { font-size: 1.1rem; }
+  .req-columns { grid-template-columns: 1fr; }
+  .mascot { width: 120px; }
+  .section-header h2 { font-size: 1.7rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HERO / FLYER ============ -->
+<section class="hero">
+  <span class="star">★</span>
+  <span class="star">✦</span>
+  <span class="star">★</span>
+  <span class="star">✦</span>
+  <span class="star">★</span>
+  <span class="star">✦</span>
+
+  <div class="marquee-wrapper">
+    <div class="marquee-track">
+      <span>PostGIS • SQL Espacial • Bases de Datos Geográficas • QGIS • PostgreSQL •</span>
+      <span>PostGIS • SQL Espacial • Bases de Datos Geográficas • QGIS • PostgreSQL •</span>
+      <span>PostGIS • SQL Espacial • Bases de Datos Geográficas • QGIS • PostgreSQL •</span>
+      <span>PostGIS • SQL Espacial • Bases de Datos Geográficas • QGIS • PostgreSQL •</span>
+    </div>
+  </div>
+
+  <div class="hero-card">
+    <div class="badge">Curso en línea · 10 horas</div>
+
+    <img src="mascota.png" alt="Mascota del curso" class="mascot" id="mascotImg">
+
+    <h1 class="hero-title">Introducción a PostGIS</h1>
+    <p class="hero-subtitle">Datos Espaciales con SQL</p>
+
+    <div class="dates-box">
+      <div class="date-main">12 — 16 de agosto 2026</div>
+      <div class="date-details">Miércoles a domingo · 2 horas por sesión · Google Meet</div>
+    </div>
+
+    <div class="includes-list">
+      <span class="tag">Grabaciones</span>
+      <span class="tag">Repositorio GitHub</span>
+      <span class="tag">Constancia con QR</span>
+      <span class="tag">Datos de práctica</span>
+    </div>
+
+    <div class="cta-group">
+      <a href="#temario" class="btn btn-secondary">📋 Ver temario completo</a>
+      <a href="https://forms.gle/TU_FORMULARIO_AQUI" target="_blank" class="btn btn-primary">🚀 ¡Inscríbete!</a>
+    </div>
+
+    <p class="hero-footer">Imparte: <a href="https://jdanifalcon.github.io/pagejdof/" target="_blank" style="color:var(--mint-light);text-decoration:underline;">Jessica Falcón</a></p>
+  </div>
+</section>
+
+<!-- ============ TEMARIO ============ -->
+<section id="temario">
+  <div class="section-header">
+    <h2>Temario del curso</h2>
+    <p>5 sesiones · 2 horas cada una · De lo básico al proyecto integrador</p>
+  </div>
+
+  <!-- SESIÓN 1 -->
+  <div class="session">
+    <div class="session-header">
+      <span class="day-badge">Día 1 · Miércoles</span>
+      <h3 class="session-title">Fundamentos: PostgreSQL y PostGIS</h3>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 1 — ¿Por qué bases de datos espaciales? (60 min)</div>
+      <ul>
+        <li>Limitaciones de trabajar solo con archivos (shapefiles, GeoJSON)</li>
+        <li>Qué es PostgreSQL y qué agrega PostGIS</li>
+        <li>Arquitectura cliente-servidor: cómo funciona una base de datos</li>
+        <li>Recorrido por pgAdmin: interfaz, conexión al servidor, editor SQL</li>
+      </ul>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 2 — SQL desde cero (60 min)</div>
+      <ul>
+        <li>Crear una base de datos y habilitar PostGIS: <code>CREATE EXTENSION postgis</code></li>
+        <li>Tipos de datos básicos: texto, numérico, fecha, booleano</li>
+        <li>Sentencias fundamentales: <code>CREATE TABLE</code>, <code>INSERT</code>, <code>SELECT</code>, <code>WHERE</code></li>
+        <li>Ordenar y filtrar datos: <code>ORDER BY</code>, <code>LIMIT</code>, <code>DISTINCT</code></li>
+        <li>Ejercicio: tabla de ciudades con consultas básicas</li>
+      </ul>
+    </div>
+    <div class="deliverable"><strong>Entregable:</strong> Base de datos creada con PostGIS habilitado y tabla de práctica.</div>
+  </div>
+
+  <!-- SESIÓN 2 -->
+  <div class="session">
+    <div class="session-header">
+      <span class="day-badge">Día 2 · Jueves</span>
+      <h3 class="session-title">Geometrías y datos espaciales</h3>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 1 — Tipos de geometría y sistemas de referencia (60 min)</div>
+      <ul>
+        <li>Modelo de geometrías: Point, LineString, Polygon, MultiPolygon</li>
+        <li>Representación de geometrías: WKT (Well-Known Text) y WKB</li>
+        <li>Sistemas de coordenadas y SRID: ¿qué es el EPSG?</li>
+        <li>Funciones clave: <code>ST_GeomFromText()</code>, <code>ST_SetSRID()</code>, <code>ST_Transform()</code></li>
+        <li>Tabla <code>spatial_ref_sys</code>: consultar SRIDs disponibles</li>
+      </ul>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 2 — Cargar datos espaciales (60 min)</div>
+      <ul>
+        <li>Crear tablas con columnas de geometría</li>
+        <li>Insertar puntos, líneas y polígonos con SQL</li>
+        <li>Importar un shapefile con <code>shp2pgsql</code> desde terminal</li>
+        <li>Importar desde QGIS con DB Manager (método visual)</li>
+        <li>Explorar datos: <code>ST_AsText()</code>, <code>ST_SRID()</code>, <code>ST_GeometryType()</code></li>
+      </ul>
+    </div>
+    <div class="deliverable"><strong>Entregable:</strong> Shapefile de municipios importado en PostGIS y verificado.</div>
+  </div>
+
+  <!-- SESIÓN 3 -->
+  <div class="session">
+    <div class="session-header">
+      <span class="day-badge">Día 3 · Viernes</span>
+      <h3 class="session-title">Consultas espaciales</h3>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 1 — Funciones de medición y relación (60 min)</div>
+      <ul>
+        <li>Medir: <code>ST_Area()</code>, <code>ST_Length()</code>, <code>ST_Perimeter()</code>, <code>ST_Distance()</code></li>
+        <li>Unidades y la importancia de reproyectar (<code>geography</code> vs <code>geometry</code>)</li>
+        <li>Relaciones topológicas: <code>ST_Contains()</code>, <code>ST_Within()</code>, <code>ST_Intersects()</code></li>
+        <li>Operador <code>&&</code> y el bounding box</li>
+      </ul>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 2 — Ejercicio práctico con datos reales (60 min)</div>
+      <ul>
+        <li>Dataset: municipios y localidades de Yucatán</li>
+        <li>¿Qué localidades caen dentro de cada municipio?</li>
+        <li>¿Cuáles son los 5 municipios más grandes por área?</li>
+        <li>¿Qué localidades están a menos de 10 km de Mérida?</li>
+        <li>Exportar resultados de una consulta como nueva tabla</li>
+      </ul>
+    </div>
+    <div class="deliverable"><strong>Entregable:</strong> Script SQL con las consultas resueltas y comentadas.</div>
+  </div>
+
+  <!-- SESIÓN 4 -->
+  <div class="session">
+    <div class="session-header">
+      <span class="day-badge">Día 4 · Sábado</span>
+      <h3 class="session-title">Geoprocesamiento y visualización</h3>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 1 — Operaciones espaciales (60 min)</div>
+      <ul>
+        <li>Zonas de influencia: <code>ST_Buffer()</code></li>
+        <li>Operaciones de conjunto: <code>ST_Intersection()</code>, <code>ST_Union()</code>, <code>ST_Difference()</code></li>
+        <li>Centroides y envolventes: <code>ST_Centroid()</code>, <code>ST_Envelope()</code>, <code>ST_ConvexHull()</code></li>
+        <li>Spatial join: usar <code>ST_Intersects()</code> dentro de un <code>JOIN</code></li>
+        <li>Agregaciones espaciales: <code>ST_Union()</code> con <code>GROUP BY</code></li>
+      </ul>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 2 — Conectar PostGIS con QGIS (60 min)</div>
+      <ul>
+        <li>Agregar conexión PostGIS en QGIS</li>
+        <li>Visualizar tablas y consultas como capas</li>
+        <li>Crear vistas (<code>CREATE VIEW</code>) para consultas frecuentes</li>
+        <li>Estilizar y exportar mapas desde QGIS con datos de PostGIS</li>
+        <li>Discusión: cuándo usar PostGIS vs procesar en QGIS</li>
+      </ul>
+    </div>
+    <div class="deliverable"><strong>Entregable:</strong> Mapa en QGIS alimentado por consultas de PostGIS.</div>
+  </div>
+
+  <!-- SESIÓN 5 -->
+  <div class="session">
+    <div class="session-header">
+      <span class="day-badge">Día 5 · Domingo</span>
+      <h3 class="session-title">Proyecto integrador y buenas prácticas</h3>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 1 — Mini-proyecto (60 min)</div>
+      <ul>
+        <li>Problema completo de principio a fin: importar → consultar → geoprocesar → visualizar</li>
+        <li>Opción A: Análisis de cobertura de servicios (escuelas, hospitales) por zona</li>
+        <li>Opción B: Puntos de interés dentro de áreas protegidas</li>
+        <li>Opción C: Densidad de infraestructura por municipio</li>
+      </ul>
+    </div>
+    <div class="block">
+      <div class="block-label">Bloque 2 — Optimización y cierre (60 min)</div>
+      <ul>
+        <li>Índices espaciales: qué son y cómo crearlos con <code>GIST</code></li>
+        <li><code>EXPLAIN ANALYZE</code>: verificar que tus consultas usan el índice</li>
+        <li>Buenas prácticas: nombrado, documentación, respaldos con <code>pg_dump</code></li>
+        <li>Recursos para seguir aprendiendo</li>
+        <li>Sesión de preguntas y cierre</li>
+      </ul>
+    </div>
+    <div class="deliverable"><strong>Entregable:</strong> Proyecto completo documentado en el repositorio personal.</div>
+  </div>
+
+  <!-- REQUISITOS -->
+  <div class="requisitos">
+    <h3>Requisitos</h3>
+    <div class="req-columns">
+      <div class="req-col">
+        <h4>Conocimientos previos</h4>
+        <ul>
+          <li>Manejo básico de computadora y archivos</li>
+          <li>Familiaridad con algún SIG (QGIS, ArcGIS) es útil pero no indispensable</li>
+          <li>No se requiere experiencia en SQL ni bases de datos</li>
+        </ul>
+      </div>
+      <div class="req-col">
+        <h4>Software a instalar</h4>
+        <ul>
+          <li>PostgreSQL 16+ con extensión PostGIS 3.4+</li>
+          <li>pgAdmin 4</li>
+          <li>QGIS 3.34+</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- INCLUYE -->
+  <div class="included-section">
+    <h3>¿Qué incluye?</h3>
+    <div class="included-grid">
+      <div class="included-item">
+        <div class="icon">🎥</div>
+        <div class="label">Grabaciones de las 5 sesiones</div>
+      </div>
+      <div class="included-item">
+        <div class="icon">💻</div>
+        <div class="label">Repositorio GitHub con scripts y datos</div>
+      </div>
+      <div class="included-item">
+        <div class="icon">📜</div>
+        <div class="label">Constancia digital verificable con QR</div>
+      </div>
+      <div class="included-item">
+        <div class="icon">🗺️</div>
+        <div class="label">Datasets reales de práctica</div>
+      </div>
+    </div>
+
+    <div class="final-cta">
+      <a href="https://forms.gle/siWFFmGCydGPf6sb7" target="_blank" class="btn btn-primary">🚀 ¡Inscríbet ahora!</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="page-footer">
+  <a href="https://jdanifalcon.github.io/pagejdof/" target="_blank" class="btn btn-secondary" style="font-size:0.95rem;">👩‍💻 Conoce a la instructora</a>
+</footer>
+
+<script>
+// Smooth scroll for temario button
+document.querySelectorAll('a[href="#temario"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.getElementById('temario').scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
