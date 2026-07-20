@@ -234,10 +234,33 @@ code{
 .footer-link{text-align:center;margin-top:4px;padding:10px 0 0;}
 .footer-link a{color:var(--blue);font-size:.85rem;}
 
+/* ═══════════════════ PRICING ═══════════════════ */
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.price-card{text-align:center;}
+.price-card .wb{padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.price-type{font-family:'VT323',monospace;font-size:1.2rem;color:var(--blue);}
+.price-amount{font-family:'VT323',monospace;font-size:2.4rem;color:var(--black);line-height:1;}
+.price-label{font-size:.82rem;color:var(--dark);}
+.discount-box{
+  background:var(--yellow);
+  border:2px solid;border-color:var(--hi) var(--black) var(--black) var(--hi);
+  padding:10px 16px;text-align:center;
+}
+.discount-title{font-family:'VT323',monospace;font-size:1.15rem;color:var(--blue);margin-bottom:4px;}
+.discount-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+.discount-item{
+  background:var(--face);
+  border:2px solid;border-color:var(--hi) var(--black) var(--black) var(--hi);
+  padding:8px;text-align:center;
+}
+.discount-item .old-price{font-family:'VT323',monospace;font-size:1rem;color:var(--shadow);text-decoration:line-through;}
+.discount-item .new-price{font-family:'VT323',monospace;font-size:1.5rem;color:var(--blue);}
+.discount-item .d-label{font-size:.78rem;color:var(--dark);}
+
 /* ═══════════════════ RESPONSIVE ═══════════════════ */
 @media(max-width:640px){
   .deco-l,.deco-r,.cursor-deco{display:none;}
-  .req-grid{grid-template-columns:1fr;}
+  .req-grid,.price-grid,.discount-grid{grid-template-columns:1fr;}
   .hero-body{padding:16px 10px;}
   .hero-body h1{font-size:2rem;}
   .tb-icons{display:none;}
@@ -325,7 +348,7 @@ code{
     <div class="wb">
       <img src="img/image3.png" alt="">
       <h3>5 días · 10 horas</h3>
-      <p>Mié 12 a dom 16 de agosto. 2 horas por sesión.</p>
+      <p>Mié 12 a dom 16 de agosto. 6:00 PM (hora CDMX). 2 hrs por sesión.</p>
     </div>
   </div>
   <div class="info-card w">
@@ -562,6 +585,51 @@ code{
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════ PRECIOS ═══════ -->
+<div class="w">
+  <div class="tb">
+    <span>💰 precios.exe</span>
+    <div class="tb-btns"><div class="tb-b">─</div><div class="tb-b">□</div><div class="tb-b">✕</div></div>
+  </div>
+  <div class="wb">
+
+    <div class="price-grid">
+      <div class="price-card sk">
+        <div class="wb">
+          <div class="price-type">🎓 Estudiante</div>
+          <div class="price-amount">$500 MXN</div>
+          <div class="price-label">Presentar credencial o comprobante vigente</div>
+        </div>
+      </div>
+      <div class="price-card sk">
+        <div class="wb">
+          <div class="price-type">💼 Profesional</div>
+          <div class="price-amount">$1,000 MXN</div>
+          <div class="price-label">Profesionistas y público general</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="discount-box">
+      <div class="discount-title">🏷️ Descuento del 5% — Ya llevas 2+ cursos conmigo</div>
+      <p style="font-size:.82rem;margin-bottom:6px;">Si ya te inscribiste a 2 o más cursos anteriores, aplica automáticamente:</p>
+      <div class="discount-grid">
+        <div class="discount-item">
+          <div class="d-label">🎓 Estudiante</div>
+          <div class="old-price">$500</div>
+          <div class="new-price">$475 MXN</div>
+        </div>
+        <div class="discount-item">
+          <div class="d-label">💼 Profesional</div>
+          <div class="old-price">$1,000</div>
+          <div class="new-price">$950 MXN</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
